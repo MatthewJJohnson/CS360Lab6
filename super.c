@@ -1,11 +1,18 @@
+/***********************************************************************
+ *
+ *	Washington State University CPTS 360 
+ *   
+ *   Copyright (c) Kenneth Eversole and Matthew Johnson 2018
+ *
+ */
+
+
 /********* super.c code ***************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include "ext2type.h"
 #include <linux/fs.h>
-//#include <linux/ext2_fs.h> WTFFFFFFFFFFFFFFFFFFFFFF
-//#include <ext2fs/ext2_fs.h> kill that guy
+#include <ext2fs/ext2_fs.h> 
 
 typedef unsigned char  u8;
 typedef unsigned short u16;
@@ -71,7 +78,6 @@ int clr_bit(char *buf, int bit)
 
 int decFreeInodes(int dev)
 {
-  char buf[BLKSIZE];
 
   // dec free inodes count in SUPER and GD
   get_block(dev, 1, buf);
@@ -87,7 +93,7 @@ int decFreeInodes(int dev)
 
 int decFreeBlocks(int dev)
 {
-  char buf[BLKSIZE];
+  
 
   // dec free inodes count in SUPER and GD
   get_block(dev, 1, buf);
@@ -104,7 +110,7 @@ int decFreeBlocks(int dev)
 int ialloc(int dev)
 {
   int  i;
-  char buf[BLKSIZE];
+ 
 
   // read inode_bitmap block
   get_block(dev, _imap, buf);
@@ -124,7 +130,7 @@ int ialloc(int dev)
 
 imap()
 {
-  char buf[BLKSIZE];
+ 
   int  i;
 
   // read SUPER block
@@ -155,7 +161,7 @@ imap()
 
 inode()
 {
-  char buf[BLKSIZE];
+  
 
   // read GD
   get_block(fd, 2, buf);
@@ -262,7 +268,7 @@ int gd()
 //similar to imap
 int bmap()
 {
-    char buf[BLKSIZE];
+    
     int  i;
 
     //read super block
@@ -330,8 +336,7 @@ int search(INODE *ip, char *name)
 int balloc(int dev)
 {
     int i;
-    char buf[BLKSIZE];
-
+    
     //read block_bitmap block
     get_block(dev, _bmap, buf);
 

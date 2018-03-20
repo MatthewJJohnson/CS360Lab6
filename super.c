@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include "ext2type.h"
+#include <linux/fs.h>
+//#include <linux/ext2_fs.h> WTFFFFFFFFFFFFFFFFFFFFFF
 //#include <ext2fs/ext2_fs.h> kill that guy
 
 typedef unsigned char  u8;
@@ -370,7 +372,13 @@ int main(int argc, char*argv[])
   // }
   //search(ip, "longNameDir");
   //search(ip, "shortNameDir");
+
+  //commented stuff above is needed for search, but has inf loop
+  super();
   gd();
+  imap();
+  bmap();
+  inode();
 
 
   // read SUPER block
@@ -392,11 +400,13 @@ int main(int argc, char*argv[])
   printf("imap = %d\n", _imap);
   //getchar();
 
+  //IALLOC
   for (i=0; i < 5; i++){
     ino = ialloc(fd);
     printf("allocated ino = %d\n", ino);
   }
 
+  //BALLOC
   for (i=0; i < 5; i++){
     bno = balloc(fd);
     printf("allocated bno = %d\n", bno);

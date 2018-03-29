@@ -66,7 +66,12 @@ int inode_size;
 char *disk = "diskimage";
 int bmap, imap;
 int ninodes, nblocks, nfreeInodes, nfreeBlocks;
-  int  i = 0;
+int  i = 0;
+
+char *diskimage;
+char *path[128]; 
+
+
 //basic functions
 int get_block(int fd, int blk, char buf[ ])
 {
@@ -442,6 +447,33 @@ run_balloc(int fd)
 
 
 
+void parse_args(char **args)
+{
+  int i = 0;
+
+  *args++;
+
+  //setup disk image
+  diskimage = malloc(strlen(*args) * sizeof(char));
+  strcpy(diskimage,*args);
+  *args++;
+
+  //tokienize args here then put the tokens into the path
+  char *temp = strtok(*args, "/");
+  
+    while(temp != NULL)
+    {
+        path[i] = malloc(strlen(temp) * sizeof(char));
+        strcpy(path[i], temp);
+        temp = strtok(0, "/");
+        i++;
+        
+    }
+
+
+}
+
+
 
 main(int argc, char *argv[ ])
 { 
@@ -449,8 +481,10 @@ main(int argc, char *argv[ ])
 
   if (argc > 1)
   {
-    disk = argv[1];
+    parse_args(argv);
+    disk = diskimage;
   }
+  
   fd = open(disk, O_RDONLY);
   if (fd < 0){
     printf("open failed\n");
@@ -458,7 +492,7 @@ main(int argc, char *argv[ ])
   }
 
 
-  
+
 
 
 

@@ -38,13 +38,14 @@ char buf[BLKSIZE];
 int fd;
 int iblock;
 int inode_size;
-char *disk = "diskimage";
+char *diskimage = "diskimage";
 int bmap, imap;
 int ninodes, nblocks, nfreeInodes, nfreeBlocks;
 int  i = 0;
 
-char *diskimage;
+
 char *path[128];
+int current_depth = 0;
 
 
 //basic functions
@@ -297,10 +298,8 @@ int search(INODE *ip, char *name)
 	DIR *dp = (void *)buf;
 	char *cp = buf;
 
-  printf("\nINODE\tNAME\n");
   while (cp < &buf[1024])
 	{
-    printf("%d\t%s\n",dp->inode,dp->name);
 	  if(strcmp(dp->name, name) == 0)
 	  {
 		  return dp->inode; //true, found, return inode number
@@ -319,17 +318,33 @@ dir()
 
 	ip = (INODE *)buf + 1;  // ip points at 2nd INODE
 
-  printf("\nLooking for file named: NOTHEHRE!\n");
-	int result = search(ip, "NOTHERE");
 
-	if(result == 0)
+
+  get_block(fd, 33, buf);
+
+	DIR *dp = (void *)buf;
+	char *cp = buf;
+
+  printf("\nINODE\tNAME\n");
+  while (cp < &buf[1024])
 	{
-		printf("Name not found, 0 was returned!\n");
-	}
-	if(result != 0)
-	{
-		printf("Name found, the inode number returned was: %d\n", result);
-	}
+    printf("%d\t%s\n",dp->inode,dp->name);
+    cp += dp->rec_len;
+    dp = (void *) cp;
+  }
+
+  printf("\nLooking for file named: %s\n", path[current_depth]);
+	int result = search(ip, path[current_depth]);
+  if (result != 0)
+  {
+    //print out loading found inode and the found inode number
+
+  }
+  else
+  {
+    //print out failed
+  }
+	
 }
 
 //7.
@@ -459,10 +474,9 @@ main(int argc, char *argv[ ])
   if (argc > 1)
   {
     parse_args(argv);
-    disk = diskimage;
   }
 
-  fd = open(disk, O_RDONLY);
+  fd = open(diskimage, O_RDONLY);
   if (fd < 0){
     printf("open failed\n");
     exit(1);
@@ -500,8 +514,8 @@ main(int argc, char *argv[ ])
 
    //6.
   printf("\n---------------------------------------------\n");
-  printf("Diskname is %s\n", disk);
-  printf("Pathname is %s\n", path);
+  printf("Diskname is %s\n", diskimage);
+  printf("Pathname is %s\n", path[0]);
   dir();
 
 

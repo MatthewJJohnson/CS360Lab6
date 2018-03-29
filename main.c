@@ -1,7 +1,7 @@
 /***********************************************************************
  *
- *	Washington State University CPTS 360 
- *   
+ *	Washington State University CPTS 360
+ *
  *   Copyright (c) Kenneth Eversole and Matthew Johnson 2018
  *
  */
@@ -29,34 +29,9 @@ typedef struct ext2_dir_entry_2 DIR;    // need this for new version of e2fs
 GD    *gp;
 SUPER *sp;
 INODE *ip;
-DIR   *dp; 
+DIR   *dp;
 
 #define BLKSIZE 1024
-
-
-
-
-/******************* in <ext2type.h>*******************************
-struct ext2_super_block {
-  u32  s_inodes_count;       // total number of inodes
-  u32  s_blocks_count;       // total number of blocks
-  u32  s_r_blocks_count;     
-  u32  s_free_blocks_count;  // current number of free blocks
-  u32  s_free_inodes_count;  // current number of free inodes 
-  u32  s_first_data_block;   // first data block in this group
-  u32  s_log_block_size;     // 0 for 1KB block size
-  u32  s_log_frag_size;
-  u32  s_blocks_per_group;   // 8192 blocks per group 
-  u32  s_frags_per_group;
-  u32  s_inodes_per_group;    
-  u32  s_mtime;
-  u32  s_wtime;
-  u16  s_mnt_count;          // number of times mounted 
-  u16  s_max_mnt_count;      // mount limit
-  u16  s_magic;              // 0xEF53
-  // A FEW MORE non-essential fields
-};
-**********************************************************************/
 
 //gloabals
 char buf[BLKSIZE];
@@ -69,7 +44,7 @@ int ninodes, nblocks, nfreeInodes, nfreeBlocks;
 int  i = 0;
 
 char *diskimage;
-char *path[128]; 
+char *path[128];
 
 
 //basic functions
@@ -151,7 +126,7 @@ super()
 {
 
   printf("\n[SUPER INFORMATION]\n");
-  get_block(fd, 1, buf);  
+  get_block(fd, 1, buf);
   sp = (SUPER *)buf;
 
   // check for EXT2 magic number:
@@ -167,7 +142,7 @@ super()
   printf("s_blocks_count = %d\n", sp->s_blocks_count);
   printf("s_free_inodes_count = %d\n", sp->s_free_inodes_count);
   printf("s_free_blocks_count = %d\n", sp->s_free_blocks_count);
-  printf("s_first_data_blcok = %d\n", sp->s_first_data_block);
+  printf("s_first_data_block = %d\n", sp->s_first_data_block);
   printf("s_log_block_size = %d\n", sp->s_log_block_size);
   printf("s_blocks_per_group = %d\n", sp->s_blocks_per_group);
   printf("s_inodes_per_group = %d\n", sp->s_inodes_per_group);
@@ -180,18 +155,20 @@ super()
 }
 
 //2.
+//print group descriptor information
 gd()
 {
-	printf("\n[GROUP DESCRIPTOR INFORMATION]\n");
-	get_block(fd, 1, buf);
-	gp = (GD *)buf;
+  get_block(fd, 2, buf);//descriptor table stored in the block immediately aftet the superblock (2)
+  gp = (GD *)buf;//group descriptor
 
-	printf("bg_block_bitmap = %d\n", gp->bg_block_bitmap);
-	printf("bg_inode_bitmap = %d\n", gp->bg_inode_bitmap);
-	printf("bg_inode_table = %d\n", gp->bg_inode_table);
-	printf("bg_free_blocks_countt = %d\n", gp->bg_free_blocks_count);
-	printf("bg_free_inodes_count = %d\n", gp->bg_free_inodes_count);
-	printf("bg_used_dirs_count= %d\n", gp->bg_used_dirs_count);
+  printf("Printing Group Descriptor at Block 2\n");
+  printf("bg_block_bitmap = %d\n", gp->bg_block_bitmap);//block number of the block allocation for bitmap for this Block Group
+  printf("bg_inode_bitmap = %d\n", gp->bg_inode_bitmap);//block number of the inode allocation bitmap for this Block Group
+  printf("bg_inode_table = %d\n", gp->bg_inode_table);//block number of the starting block for the inode table for this Block Group
+  printf("bg_free_blocks_count = %d\n", gp->bg_free_blocks_count);
+  printf("bg_free_inodes_count = %d\n", gp->bg_free_inodes_count);
+  printf("bg_used_dirs_count = %d\n", gp->bg_used_dirs_count);
+  //group descriptors are placed one after another and together they make the group descriptor table
 }
 
 //3.
@@ -277,15 +254,15 @@ inode()
 	 gp->bg_free_blocks_count,
 	 gp->bg_free_inodes_count,
 	 gp->bg_used_dirs_count);
-  ****************/ 
+  ****************/
   iblock = gp->bg_inode_table;   // get inode start block#
   printf("inode_block=%d\n", iblock);
 
-  // get inode start block     
+  // get inode start block
   get_block(fd, iblock, buf);
 
   ip = (INODE *)buf + 1;         // ip points at 2nd INODE
-  
+
   printf("mode=%4x ", ip->i_mode);
   printf("uid=%d  gid=%d\n", ip->i_uid, ip->i_gid);
   printf("size=%d\n", ip->i_size);
@@ -297,7 +274,7 @@ inode()
   u16  i_mode;        // same as st_imode in stat() syscall
   u16  i_uid;                       // ownerID
   u32  i_size;                      // file size in bytes
-  u32  i_atime;                     // time fields  
+  u32  i_atime;                     // time fields
   u32  i_ctime;
   u32  i_mtime;
   u32  i_dtime;
@@ -341,7 +318,7 @@ dir()
 	printf("\n[DIRECTORY INFORMATION]\n");
 
 	ip = (INODE *)buf + 1;  // ip points at 2nd INODE
-	
+
   printf("\nLooking for file named: NOTHEHRE!\n");
 	int result = search(ip, "NOTHERE");
 
@@ -379,7 +356,7 @@ int ialloc(int dev)
 
 run_ialloc(int fd)
 {
-  i = 0; 
+  i = 0;
   int ino = 0;
 
   // read SUPER block
@@ -390,7 +367,7 @@ run_ialloc(int fd)
   nblocks = sp->s_blocks_count;
   nfreeInodes = sp->s_free_inodes_count;
   nfreeBlocks = sp->s_free_blocks_count;
-  printf("ninodes=%d nblocks=%d nfreeInodes=%d nfreeBlocks=%d\n", 
+  printf("ninodes=%d nblocks=%d nfreeInodes=%d nfreeBlocks=%d\n",
 	 ninodes, nblocks, nfreeInodes, nfreeBlocks);
 
   // read Group Descriptor 0
@@ -403,7 +380,7 @@ run_ialloc(int fd)
 
     ino = ialloc(fd);
     printf("allocated ino = %d\n", ino);
-  
+
 }
 
 
@@ -434,14 +411,14 @@ int balloc(int dev)
 run_balloc(int fd)
 {
   int i,bno;
-   
+
   bmap = gp->bg_block_bitmap;
   printf("bmap = %d\n", bmap);
   //getchar();
- 
+
     bno = balloc(fd);
     printf("allocated bno = %d\n", bno);
-  
+
 
 }
 
@@ -460,14 +437,14 @@ void parse_args(char **args)
 
   //tokienize args here then put the tokens into the path
   char *temp = strtok(*args, "/");
-  
+
     while(temp != NULL)
     {
         path[i] = malloc(strlen(temp) * sizeof(char));
         strcpy(path[i], temp);
         temp = strtok(0, "/");
         i++;
-        
+
     }
 
 
@@ -476,7 +453,7 @@ void parse_args(char **args)
 
 
 main(int argc, char *argv[ ])
-{ 
+{
   int i, bno;
 
   if (argc > 1)
@@ -484,7 +461,7 @@ main(int argc, char *argv[ ])
     parse_args(argv);
     disk = diskimage;
   }
-  
+
   fd = open(disk, O_RDONLY);
   if (fd < 0){
     printf("open failed\n");
@@ -502,37 +479,41 @@ main(int argc, char *argv[ ])
   //1.
   printf("\n---------------------------------------------\n");
   super();
+  getchar();
 
   //2.
   printf("\n---------------------------------------------\n");
   gd();
+  getchar();
 
   //3.
-  printf("\n---------------------------------------------\n");
-  run_imap();
+  //printf("\n---------------------------------------------\n");
+  //run_imap();
 
   //4.
-  printf("\n---------------------------------------------\n");
-  run_bmap();
+  //printf("\n---------------------------------------------\n");
+  //run_bmap();
 
   //5.
-  printf("\n---------------------------------------------\n");
-  inode();
+  //printf("\n---------------------------------------------\n");
+  //inode();
 
    //6.
   printf("\n---------------------------------------------\n");
+  printf("Diskname is %s\n", disk);
+  printf("Pathname is %s\n", path);
   dir();
 
 
   //not working right
-  printf("\n---------------------------------------------\n");
-  run_ialloc(fd);
-  printf("\n---------------------------------------------\n");
-  run_balloc(fd);
+  //printf("\n---------------------------------------------\n");
+  //run_ialloc(fd);
+  //printf("\n---------------------------------------------\n");
+  //run_balloc(fd);
 
 
 
-  
+
 }
 
 /***** SAMPLE OUTPUTs of super.c ****************

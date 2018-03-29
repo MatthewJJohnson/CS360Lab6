@@ -48,6 +48,7 @@ int InodesBeginBlock;
 
 char *path[128];
 int current_depth = 0;
+char *og_path;
 
 
 //basic functions
@@ -230,12 +231,11 @@ dir()
 	int result = search(ip, path[current_depth]);
   if (result != 0)
   {
-    //print out loading found inode and the found inode number
-
+    printf("INODE Number returned %d\n", result);
   }
   else
   {
-    //print out failed
+    printf("[ERROR]: INODE NOT FOUND\n");
   }
 
 }
@@ -252,6 +252,10 @@ void parse_args(char **args)
   strcpy(diskimage,*args);
   *args++;
 
+
+
+  og_path = malloc(strlen(*args) * sizeof(char));
+  strcpy(og_path,*args);
   //tokienize args here then put the tokens into the path
   char *temp = strtok(*args, "/");
 
@@ -267,6 +271,7 @@ void parse_args(char **args)
 
 void getCurDir(int depth)
 {
+
   memset(curDir, 0, 1024);
   int i = 0;
 
@@ -317,8 +322,7 @@ main(int argc, char *argv[ ])
    //6.
   printf("\n---------------------------------------------\n");
   printf("Diskname is %s\n", diskimage);
-  getCurDir(2);
-  printf("Pathname is %s\n", curDir);
+  printf("Pathname is %s\n", og_path);
   printf("\n");
   dir();
 

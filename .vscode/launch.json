@@ -9,7 +9,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${workspaceFolder}/Lab6",
-			"args": ["diskimage", "/X/tiny/"],
+			"args": ["diskimage", "/Y/bigfile"],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}",
 			"environment": [],

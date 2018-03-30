@@ -177,8 +177,11 @@ BeginBlockInfo()
 {
   printf("\n[ROOT NODE INFORMATION]\n");
   //getting inode / which is Inode #2
+  //get_block(fd, InodesBeginBlock, buf);
+  ip = (INODE *)buf + 1;  // ip points at 2nd INODE
   get_block(fd, InodesBeginBlock, buf);
-  ip = (GD *)buf;
+
+  //ip = (INODE *)buf;
 
   printf("File Mode = 41ed\n");
   printf("Size in Bytes = %d\n", ip->i_size);

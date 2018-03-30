@@ -188,7 +188,8 @@ gd()
   printf("File Mode = %4x\n", ip->i_mode);
   printf("Size in Bytes = %d\n", ip->i_size);
   printf("Blocks Count = %d\n", ip->i_blocks);
-  for(i=0; i<15; i++)//print disk blocks
+
+  for(i=0; i<12; i++)//print disk blocks
   {
     if(ip->i_block[i])//if something is in the block
     {
@@ -275,13 +276,24 @@ dir()
       printf("[ERROR]: INODE NOT FOUND\n");
       exit(1);
     }
-    //showblocks(ip);
+    
   }
+  showblocks(ip);
 
 }
 
- 
-
+void showblocks(INODE *ip)
+{
+  printf("Inode SIZE: %d\n", (ip->i_size));
+  for(i=0; i<12; i++)//print disk blocks
+  {
+   
+       printf("BLOCK[%d] size: %d\n", i ,(ip->i_block[i]));
+     
+    
+  }
+  
+}
 void parse_args(char **args)
 {
   int i = 0;

@@ -215,10 +215,7 @@ int search(INODE *ip, char *name)
 	{
 	  if(strcmp(dp->name, name) == 0)
 	  {
-      if(name == path[pathcount])
-      {
-        complete =1;
-      }
+   
 		  return dp->inode; //true, found, return inode number
 	  }
     cp += dp->rec_len;
@@ -242,6 +239,9 @@ dir()
   int blk;
   int offset;
 
+
+  while(path[current_depth] !=NULL)
+  {
   char stepper[1024];
   printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
   while (cp < buf + 1024)
@@ -252,8 +252,9 @@ dir()
     cp += dp->rec_len;
     dp = (DIR *) cp;
   }
-  while(complete == 0)
-  {
+
+
+  
     printf("\nLooking for file named: %s\n", path[current_depth]);
     int result = search(goodblk, path[current_depth]);
     if (result != 0)
@@ -264,7 +265,7 @@ dir()
       printf("offset = %d\n", offset);
       printf("INODE Number returned %d\n", result);
       goodblk = goodblk+blk+offset;//get the inode we found
-      current_depth+=1;
+      current_depth++;
       getchar();
 
       get_block(fd, goodblk, buf);
@@ -272,18 +273,18 @@ dir()
 
       dp = (DIR *)buf;
       cp = buf;
-
+/*
       printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
       while (cp < buf + 1024)
     	{
         strncpy(stepper, dp->name, dp->name_len);
         stepper[dp->name_len] = 0;
-        printf("%d %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
+         printf("%d %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
         cp += dp->rec_len;
         dp = (DIR *) cp;
       }
+*/
 
-      getchar();
     }
     else
     {

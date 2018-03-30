@@ -35,6 +35,7 @@ DIR   *dp;
 
 //gloabals
 char buf[BLKSIZE];
+char curDir[BLKSIZE];
 int fd;
 int iblock;
 int inode_size;
@@ -264,6 +265,26 @@ void parse_args(char **args)
     }
 }
 
+void getCurDir(int depth)
+{
+  memset(curDir, 0, 1024);
+  int i = 0;
+
+  while (path[i] != NULL && i <= depth)
+  {
+    strcat(curDir, path[i]);
+    strcat(curDir, "/");
+    i++;
+
+  }
+
+
+
+}
+
+
+
+
 main(int argc, char *argv[ ])
 {
   int i, bno;
@@ -296,13 +317,8 @@ main(int argc, char *argv[ ])
    //6.
   printf("\n---------------------------------------------\n");
   printf("Diskname is %s\n", diskimage);
-  printf("Pathname is ");
-  int ind=0;
-  while(path[ind] != NULL)
-  {
-      printf("/%s", path[ind]);
-      ind++;
-  }
+  getCurDir(2);
+  printf("Pathname is %s\n", curDir);
   printf("\n");
   dir();
 

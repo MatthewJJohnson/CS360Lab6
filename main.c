@@ -244,6 +244,7 @@ dir()
   printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
   while (cp < buf + 1024)
 	{
+    //prints out dir
     printf("%d %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
     cp += dp->rec_len;
     dp = (DIR *) cp;
@@ -284,11 +285,12 @@ dir()
 
 void showblocks(INODE *ip)
 {
-  printf("Inode SIZE: %d\n", (ip->i_size));
+  printf("Inode SIZE: %d Blocks: %d\n", (ip->i_size), ip->i_blocks);
   for(i=0; i<12; i++)//print disk blocks
   {
    
-       printf("BLOCK[%d] size: %d\n", i ,(ip->i_block[i]));
+       printf("BLOCK[%d]: %d\n", i ,(ip->i_block[i]));
+     
      
     
   }

@@ -42,6 +42,7 @@ char *diskimage = "diskimage";
 int bmap, imap;
 int ninodes, nblocks, nfreeInodes, nfreeBlocks;
 int  i = 0;
+int InodesBeginBlock;
 
 
 char *path[128];
@@ -157,14 +158,30 @@ gd()
   get_block(fd, 2, buf);//descriptor table stored in the block immediately aftet the superblock (2)
   gp = (GD *)buf;//group descriptor
 
-  printf("Printing Group Descriptor at Block 2\n");
+  printf("\n[GROUP DESCRIPTOR INFORMATION AT BLOCK 2]\n");
   printf("bg_block_bitmap = %d\n", gp->bg_block_bitmap);//block number of the block allocation for bitmap for this Block Group
   printf("bg_inode_bitmap = %d\n", gp->bg_inode_bitmap);//block number of the inode allocation bitmap for this Block Group
   printf("bg_inode_table = %d\n", gp->bg_inode_table);//block number of the starting block for the inode table for this Block Group
   printf("bg_free_blocks_count = %d\n", gp->bg_free_blocks_count);
   printf("bg_free_inodes_count = %d\n", gp->bg_free_inodes_count);
   printf("bg_used_dirs_count = %d\n", gp->bg_used_dirs_count);
+  InodesBeginBlock = gp->bg_inode_table;
+  printf("Inodes Start = %d", InodesBeginBlock);
   //group descriptors are placed one after another and together they make the group descriptor table
+}
+
+//3. Read InodesBeginBlock (root)
+BeginBlockInfo()
+{
+  printf("\n[ROOT NODE INFORMATION]\n");
+  //getting inode / which is Inode #2
+  get_block(fd, InodesBeginBlock, buf);
+  ip = (GD *)buf;
+
+  printf("File Mode = 41ed\n");
+  printf("Size in Bytes = %d\n", ip->i_size);
+  printf("Blocks Count = %d\n", ip->i_blocks);
+
 }
 
 int search(INODE *ip, char *name)
@@ -270,6 +287,10 @@ main(int argc, char *argv[ ])
   //2.
   printf("\n---------------------------------------------\n");
   gd();
+  getchar();
+
+  printf("\n---------------------------------------------\n");
+  BeginBlockInfo();
   getchar();
 
    //6.

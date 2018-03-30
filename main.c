@@ -344,7 +344,7 @@ dir()
   {
     //print out failed
   }
-	
+
 }
 
 //7.
@@ -515,7 +515,14 @@ main(int argc, char *argv[ ])
    //6.
   printf("\n---------------------------------------------\n");
   printf("Diskname is %s\n", diskimage);
-  printf("Pathname is %s\n", path[0]);
+  printf("Pathname is ");
+  int ind=0;
+  while(path[ind] != NULL)
+  {
+      printf("/%s", path[ind]);
+      ind++;
+  }
+  printf("\n");
   dir();
 
 

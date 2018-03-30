@@ -182,8 +182,6 @@ gd()
 
   printf("\n[ROOT NODE INFORMATION]\n");
   get_block(fd, InodesBeginBlock, buf);
-  //getting inode / which is Inode #2
-  //get_block(fd, InodesBeginBlock, buf);
   ip = (INODE *)buf + 1;  // ip points at 2nd INODE
   //ip = (INODE *)buf;
 
@@ -242,12 +240,9 @@ dir()
 
   while(path[current_depth] !=NULL)
   {
-  char stepper[1024];
   printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
   while (cp < buf + 1024)
 	{
-    strncpy(stepper, dp->name, dp->name_len);
-    stepper[dp->name_len] = 0;
     printf("%d %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
     cp += dp->rec_len;
     dp = (DIR *) cp;
@@ -273,27 +268,19 @@ dir()
 
       dp = (DIR *)buf;
       cp = buf;
-/*
-      printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
-      while (cp < buf + 1024)
-    	{
-        strncpy(stepper, dp->name, dp->name_len);
-        stepper[dp->name_len] = 0;
-         printf("%d %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
-        cp += dp->rec_len;
-        dp = (DIR *) cp;
-      }
-*/
 
     }
     else
     {
       printf("[ERROR]: INODE NOT FOUND\n");
+      exit(1);
     }
+    //showblocks(ip);
   }
 
 }
 
+ 
 
 void parse_args(char **args)
 {
@@ -337,9 +324,6 @@ void getCurDir(int depth)
     i++;
 
   }
-
-
-
 }
 
 

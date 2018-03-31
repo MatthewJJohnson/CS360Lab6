@@ -44,6 +44,9 @@ int bmap, imap;
 int ninodes, nblocks, nfreeInodes, nfreeBlocks;
 int  i = 0;
 
+int INODES_PER_BLOCK;
+int complete = 0;
+int pathcount;
 int goodblk;
 int InodesBeginBlock;
 
@@ -140,6 +143,8 @@ super()
 
   printf("EXT2 FS OK\n");
   printf("s_inodes_count = %d\n", sp->s_inodes_count);
+  int inodeblkCount = sp->s_inodes_count/8;
+  INODES_PER_BLOCK = (sp->s_inodes_count)/inodeblkCount;
   printf("s_blocks_count = %d\n", sp->s_blocks_count);
   printf("s_free_inodes_count = %d\n", sp->s_free_inodes_count);
   printf("s_free_blocks_count = %d\n", sp->s_free_blocks_count);
@@ -210,6 +215,10 @@ int search(INODE *ip, char *name)
 	{
 	  if(strcmp(dp->name, name) == 0)
 	  {
+      if(name == path[pathcount])
+      {
+        complete =1;
+      }
 		  return dp->inode; //true, found, return inode number
 	  }
     cp += dp->rec_len;
@@ -230,6 +239,8 @@ dir()
   dp = (DIR *)buf;
 	char *cp;
   cp = buf;
+  int blk;
+  int offset;
 
   char stepper[1024];
   printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
@@ -237,20 +248,25 @@ dir()
 	{
     strncpy(stepper, dp->name, dp->name_len);
     stepper[dp->name_len] = 0;
-    printf("%d  %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
+    printf("%d %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
     cp += dp->rec_len;
     dp = (DIR *) cp;
   }
-
-  printf("\nLooking for file named: %s\n", path[current_depth]);
-	int result = search(ip, path[current_depth]);
-  if (result != 0)
+  while(complete == 0)
   {
-    printf("INODE Number returned %d\n", result);
-  }
-  else
-  {
-    printf("[ERROR]: INODE NOT FOUND\n");
+    printf("\nLooking for file named: %s\n", path[current_depth]);
+    int result = search(ip, path[current_depth]);
+    if (result != 0)
+    {
+      blk = (result-1)/INODES_PER_BLOCK + InodesBeginBlock;
+      offset = (result-1)%INODES_PER_BLOCK;
+      printf("INODE Number returned %d\n", result);
+      getchar();
+    }
+    else
+    {
+      printf("[ERROR]: INODE NOT FOUND\n");
+    }
   }
 
 }
@@ -282,6 +298,7 @@ void parse_args(char **args)
         i++;
 
     }
+    pathcount = i;
 }
 
 void getCurDir(int depth)

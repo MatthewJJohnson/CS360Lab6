@@ -43,6 +43,8 @@ char *diskimage = "diskimage";
 int bmap, imap;
 int ninodes, nblocks, nfreeInodes, nfreeBlocks;
 int  i = 0;
+
+int goodblk;
 int InodesBeginBlock;
 
 
@@ -170,29 +172,36 @@ gd()
   InodesBeginBlock = gp->bg_inode_table;
   printf("Inodes Start = %d", InodesBeginBlock);
   //group descriptors are placed one after another and together they make the group descriptor table
-}
 
-//3. Read InodesBeginBlock (root)
-BeginBlockInfo()
-{
+  getchar();
+
   printf("\n[ROOT NODE INFORMATION]\n");
+  get_block(fd, InodesBeginBlock, buf);
   //getting inode / which is Inode #2
   //get_block(fd, InodesBeginBlock, buf);
   ip = (INODE *)buf + 1;  // ip points at 2nd INODE
-  get_block(fd, InodesBeginBlock, buf);
-
   //ip = (INODE *)buf;
 
-  printf("File Mode = 41ed\n");
+  printf("File Mode = %4x\n", ip->i_mode);
   printf("Size in Bytes = %d\n", ip->i_size);
   printf("Blocks Count = %d\n", ip->i_blocks);
-
+  for(i=0; i<15; i++)//print disk blocks
+  {
+    if(ip->i_block[i])//if something is in the block
+    {
+        printf("i_block[%d] = %d\n", i, ip->i_block[i]);
+        if(i == 0)
+        {
+          goodblk = ip->i_block[i];
+        }
+    }
+  }
 }
 
 int search(INODE *ip, char *name)
 {
 
-	get_block(fd, 33, buf);
+	get_block(fd, goodblk, buf);
 
 	DIR *dp = (void *)buf;
 	char *cp = buf;
@@ -215,9 +224,10 @@ dir()
 {
 	printf("\n[DIRECTORY INFORMATION]\n");
 
+
 	ip = (INODE *)buf + 1;  // ip points at 2nd INODE
 
-  get_block(fd, 33, buf);
+  get_block(fd, goodblk, buf);
 
 	DIR *dp = (void *)buf;
 	char *cp = buf;
@@ -316,10 +326,6 @@ main(int argc, char *argv[ ])
   //2.
   printf("\n---------------------------------------------\n");
   gd();
-  getchar();
-
-  printf("\n---------------------------------------------\n");
-  BeginBlockInfo();
   getchar();
 
    //6.

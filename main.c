@@ -255,12 +255,34 @@ dir()
   while(complete == 0)
   {
     printf("\nLooking for file named: %s\n", path[current_depth]);
-    int result = search(ip, path[current_depth]);
+    int result = search(goodblk, path[current_depth]);
     if (result != 0)
     {
       blk = (result-1)/INODES_PER_BLOCK + InodesBeginBlock;
       offset = (result-1)%INODES_PER_BLOCK;
+      printf("blk = %d\n", blk);
+      printf("offset = %d\n", offset);
       printf("INODE Number returned %d\n", result);
+      goodblk = goodblk+blk+offset;//get the inode we found
+      current_depth+=1;
+      getchar();
+
+      get_block(fd, goodblk, buf);
+      ip = (INODE *)buf;
+
+      dp = (DIR *)buf;
+      cp = buf;
+
+      printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
+      while (cp < buf + 1024)
+    	{
+        strncpy(stepper, dp->name, dp->name_len);
+        stepper[dp->name_len] = 0;
+        printf("%d %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
+        cp += dp->rec_len;
+        dp = (DIR *) cp;
+      }
+
       getchar();
     }
     else

@@ -224,20 +224,22 @@ dir()
 {
 	printf("\n[DIRECTORY INFORMATION]\n");
 
-
-	ip = (INODE *)buf + 1;  // ip points at 2nd INODE
-
   get_block(fd, goodblk, buf);
 
-	DIR *dp = (void *)buf;
-	char *cp = buf;
+	DIR *dp;
+  dp = (DIR *)buf;
+	char *cp;
+  cp = buf;
 
-  printf("\nINODE\tNAME\n");
-  while (cp < &buf[1024])
+  char stepper[1024];
+  printf("%s  %s  %s  %s\n", "i_node", "rec_len", "name_len", "name");
+  while (cp < buf + 1024)
 	{
-    printf("%d\t%s\n",dp->inode,dp->name);
+    strncpy(stepper, dp->name, dp->name_len);
+    stepper[dp->name_len] = 0;
+    printf("%d  %d  %d  %s\n", dp->inode, dp->rec_len, dp->name_len, dp->name);
     cp += dp->rec_len;
-    dp = (void *) cp;
+    dp = (DIR *) cp;
   }
 
   printf("\nLooking for file named: %s\n", path[current_depth]);
